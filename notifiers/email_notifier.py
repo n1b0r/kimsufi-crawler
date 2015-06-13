@@ -54,7 +54,11 @@ class EmailNotifier(Notifier):
         """Send email notification using SMTP"""
         msg = MIMEMultipart()
         msg['From'] = self.fromaddr
-        msg['To'] = self.toaddr
+        if type(self.toaddr) == type([]):
+            recipients = self.toaddr
+        else:
+            recipients = [ self.toaddr ]
+        msg['To'] = ', '.join(self.toaddr)
         msg['Subject'] = title
         body = text if url else text + '\nURL: ' + url
         msg.attach(MIMEText(body, 'plain'))
@@ -69,4 +73,4 @@ class EmailNotifier(Notifier):
         if self.login_required:
           server.login(self.fromuser, self.frompwd)
         text = msg.as_string()
-        server.sendmail(self.fromaddr, self.toaddr, text)
+        server.sendmail(self.fromaddr, recipients, text)
